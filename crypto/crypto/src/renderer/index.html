@@ -1,0 +1,285 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 1.5px;
+        }
+        .chart {            
+            height: 44vh;
+            width: 32vw;
+        }
+        .chart-header {
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
+            width: 100%; 
+            background-color: rgb(107,147, 221);
+            padding: 2px;
+            box-sizing: border-box;
+        }
+        .ticker-name {
+            font-weight: bold;
+            color: rgb(255, 255, 255);
+            
+
+        }
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            background-color: aqua;
+
+        }
+    </style>
+    <title id="chart-title">Chart Demo</title>
+</head>
+<body>
+    <div class="container" id="top-charts">
+        <div class="chart-container" id="chart-container-top-0"></div>
+        <div class="chart-container" id="chart-container-top-1"></div>
+        <div class="chart-container" id="chart-container-top-2"></div>
+    </div>
+    <div class="container" id="bottom-charts">
+        <div class="chart-container" id="chart-container-bottom-0"></div>
+        <div class="chart-container" id="chart-container-bottom-1"></div>
+        <div class="chart-container" id="chart-container-bottom-2"></div>
+    </div>
+
+    <!-- The Modal -->
+    <div class="modal" id="cryptoModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Select Cryptocurrencies</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <form id="cryptoForm">
+                        <div class="form-group">
+                            <label for="cryptoSelect">Cryptocurrencies:</label>
+                            <select multiple class="form-control" id="cryptoSelect" size="10">
+                                <option VALUE ='BINANCE:BTCUSD.P' > BTC</option>
+                                <option value="MEXC:SHIBUSDT.P">SHIB</option>
+                                <option  value = 'BINANCE:MATICUSDT.P'>MATIC</option>
+                                <option value ='BINANCE:GALAUSDT.P'>Gala</option>
+                                <option  value ='BINANCE:DOTUSDT.P'>DOT</option>
+                                <option value ='BINANCE:FILUSDT.P'>FIL</option>
+                                <option value ='BINANCE:LINKUSDT.P'>LINK</option>
+                                <option value ='BINANCE:DOGEUSDT.P'>DOGE</option>
+                                <option value ='BINANCE:SUIUSDT.P'>SUI</option>
+                                <option value ='BINANCE:FTMUSDT.P'>FTM</option>
+                                <option value ='OANDA:EURUSD'>EUR_USD</option>
+                                <option value = 'OANDA:GBPUSD'>GBP_USD</option>
+                                <option value ='OANDA:AUDUSD'> AUD_USD</option>
+                                <option value ='OANDA:USDJPY'> USD_JPY </option>
+                                <option value ='OANDA:USDCAD'> USD_CAD</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="confirmSelection">Confirm</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>const charts= 6;</script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+    <script type="text/javascript" src="https://charting-library.tradingview-widget.com/charting_library/charting_library.standalone.js"></script>
+    <script type="text/javascript" src="https://charting-library.tradingview-widget.com/datafeeds/udf/dist/bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+        let defaultSymbols = [
+
+            "BINANCE:GALAUSDT.P",
+            "BINANCE:MATICUSDT.P",
+            "BINANCE:DOTUSDT.P",
+
+            "BINANCE:FTMUSDT.P",
+            "MEXC:SHIBUSDT.P",
+            "BINANCE:FILUSDT.P",
+        ];
+
+        async function fetchLatestSymbols() {
+            try {
+                const response = await fetch('http://localhost:3000/latest-symbols');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const latestSymbols = await response.json();
+                return latestSymbols;
+            } catch (error) {
+                console.error('Failed to fetch symbols:', error);
+                return [];
+            }
+        }
+
+        function createChart(containerId, symbol) {
+     
+     new TradingView.widget({
+        "autosize": true,
+        "symbol": symbol,
+        "interval": "1",
+            "toolbar_bg": "#E9DCC9",
+        "timezone": "Africa/Tehran",
+        "theme": "Dark",
+        "style": "1",
+        "locale": "en",
+        "toolbar_bg": "#f1f3f6",
+        "enable_publishing": false,
+        "hide_top_toolbar": true,
+        "hide_side_toolbar": false,
+        "allow_symbol_change": false,
+        "hideideas": true,
+        "studies": ['IchimokuCloud@tv-basicstudies',],
+        "container_id": containerId,
+
+        studies_overrides: {
+            "paneProperties.background": "#ffffff",
+            "allow_symbol_change": "true",
+            "ichimoku cloud.base line periods": 30,
+            "ichimoku cloud.conversion line periods": 20,
+            "ichimoku cloud.leading span a line.color": "#FFFFF0" ,
+            "ichimoku cloud.lagging span.display": 0,
+                    },
+         
+                });
+            }
+                    
+        function updateCharts(latestSymbols) {
+            for (let i = 0; i < charts; i++) {
+                const checkbox = document.getElementById(`chart-checkbox-${i}`);
+                const tickerNameDiv = document.getElementById(`ticker-name-${i}`);
+                if (!checkbox.checked) {
+                    const chartId = `chart-${i}`;
+                    
+                    const chartDiv = document.getElementById(chartId);
+                    chartDiv.innerHTML = '';
+                    tickerNameDiv.textContent = latestSymbols[i];
+                    tickerNameDiv.style.backgroundColor = 'green';
+                    createChart(chartId, latestSymbols[i]);
+                    updateTitle(latestSymbols[i]);
+                } else {
+                    tickerNameDiv.style.backgroundColor = 'gray';
+                }
+            }
+        }
+
+        async function initializeCharts() {
+            const latestSymbols = await fetchLatestSymbols();
+            const symbolsToUse = latestSymbols.length > 0 ? latestSymbols : defaultSymbols;
+
+            for (let i = 0; i < charts; i++) {
+                const containerId = `chart-${i}`;
+                const chartContainer = document.createElement('div');
+                chartContainer.className = 'chart-container';
+
+                const chartHeader = document.createElement('div');
+                chartHeader.className = 'chart-header';
+
+                const tickerNameDiv = document.createElement('div');
+                tickerNameDiv.className = 'ticker-name';
+                tickerNameDiv.id = `ticker-name-${i}`;
+                tickerNameDiv.textContent = symbolsToUse[i];
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'checkbox';
+                checkbox.id = `chart-checkbox-${i}`;
+
+                const changeButton = document.createElement('button');
+                changeButton.className = 'btn btn-sm btn-secondary';
+                changeButton.textContent = 'Change';
+                changeButton.setAttribute('data-chart-id', i);
+                changeButton.setAttribute('data-toggle', 'modal');
+                changeButton.setAttribute('data-target', '#cryptoModal');
+
+                changeButton.addEventListener('click', () => {
+                    document.getElementById('confirmSelection').setAttribute('data-chart-id', i);
+                });
+
+                chartHeader.appendChild(tickerNameDiv);
+                chartHeader.appendChild(checkbox);
+                chartHeader.appendChild(changeButton);
+
+                const chartDiv = document.createElement('div');
+                chartDiv.className = 'chart';
+                chartDiv.id = containerId;
+
+                chartContainer.appendChild(chartHeader);
+                chartContainer.appendChild(chartDiv);
+
+                if (i < 3) {
+                    document.getElementById(`chart-container-top-${i}`).appendChild(chartContainer);
+                } else {
+                    document.getElementById(`chart-container-bottom-${i - 3}`).appendChild(chartContainer);
+                }
+
+                createChart(containerId, symbolsToUse[i]);
+                updateTitle(symbolsToUse[i]);
+            }
+
+            setInterval(async () => {
+                const latestSymbols = await fetchLatestSymbols();
+                if (latestSymbols.length > 0) {
+                    updateCharts(latestSymbols);
+                }
+            }, 60000);
+        }
+
+        function updateTitle(symbol) {
+            const titleElement = document.getElementById('chart-title');
+            titleElement.textContent = symbol;
+        }
+
+        document.addEventListener("DOMContentLoaded", initializeCharts);
+
+        document.getElementById('confirmSelection').addEventListener('click', function () {
+            const selectedOptions = Array.from(document.getElementById('cryptoSelect').selectedOptions).map(option => option.value);
+            const chartId = this.getAttribute('data-chart-id');
+            if (selectedOptions.length > 0) {
+                const chartContainerId = `chart-${chartId}`;
+                const chartDiv = document.getElementById(chartContainerId);
+                chartDiv.innerHTML = '';
+                const tickerNameDiv = document.getElementById(`ticker-name-${chartId}`);
+                tickerNameDiv.textContent = selectedOptions[0];
+                tickerNameDiv.style.backgroundColor = 'green';
+                createChart(chartContainerId, selectedOptions[0]);
+                updateTitle(selectedOptions[0]);
+                $('#cryptoModal').modal('hide');
+            } else {
+                alert('Please select at least one cryptocurrency.');
+            }
+        });
+    </script>
+</body>
+</html>

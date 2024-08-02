@@ -1,0 +1,45 @@
+
+
+.chart-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .chart-container {
+    width: 400px;
+    height: 300px;
+  }
+
+  .container{
+    margin-right: 2px;
+  }
+
+
+  
+.text2 { 
+  font-weight: 800; 
+  color: white; 
+  background-color: rgba(64, 158, 20, 0.747); 
+}
+
+.text1 { 
+  font-weight: 800; 
+  color: white; 
+  background-color: rgba(64, 158, 20, 0.747); 
+}
+
+.input-group-text{ 
+  font-weight: 800; 
+  color: white; 
+  background-color: rgba(64, 158, 20, 0.747); 
+}
+
+
+.input-group-text-1 bg-primary{ 
+  font-weight: 800; 
+  color: white; 
+  background-color: rgba(64, 158, 20, 0.747); 
+}
+
